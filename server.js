@@ -8,6 +8,9 @@ const PORT = 3177; // Bạn có thể thay đổi port này
 app.get("/", (req, res) => {
   res.send("Hello");
 });
+app.get("/hello", (req, res) => {
+  res.send("Hello again")
+})
 app.use("/music", express.static(path.join(__dirname, "music")));
 
 app.listen(PORT, () => {
