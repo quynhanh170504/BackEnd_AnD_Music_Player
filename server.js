@@ -1,5 +1,6 @@
 
 import express from 'express'
+import mysql from 'mysql'
 import path from 'path'
 import cors from 'cors'
 
@@ -12,14 +13,26 @@ const app = express();
 const PORT = 3177; // you can change this port
 app.use(cors())
 
-// static route to serve files from 'music' folder
-app.get("/", (req, res) => {
-  res.send("Hello");
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "and_music"
 });
-app.get("/hello", (req, res) => {
-  res.send("Hello again")
-})
+
+// static route to serve files from 'music' folder
 app.use("/music", express.static(path.join(__dirname, "music")));
+
+app.get('/get-all-author', (req, res) => {
+  console.log('call me get all author')
+  const sql = `
+    select * from author
+  `
+  db.query(sql, (err, result) => {
+    if(err) return res.json({Status: 'Error', Error: err})
+    return res.json(result)
+  })
+})
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
