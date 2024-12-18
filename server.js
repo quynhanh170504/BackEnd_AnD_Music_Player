@@ -34,6 +34,38 @@ app.get('/get-all-author', (req, res) => {
   })
 })
 
+app.get('/get-songs-for-quickpick', (req,res) => {
+  console.log('call me get all songs')
+  const sql = `
+    select * from song s
+    join author a on s.authorid = a.authorid
+    limit 12
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while getting songs for quickpick')
+      return res.json({Status: "Error", Error: err})
+    }
+    return res.json(result)
+  })
+})
+
+app.get('/get-all-songs', (req, res) => {
+  console.log('call me get all songs')
+  const sql = `
+    select * from song s
+    join author a on s.authorid = a.authorid
+    limit 3
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while getting all songs')
+      return res.json({Status: "Error", Error: err})
+    }
+    return res.json(result)
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
