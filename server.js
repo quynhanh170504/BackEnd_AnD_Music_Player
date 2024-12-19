@@ -65,6 +65,39 @@ app.get('/get-all-songs', (req, res) => {
   })
 })
 
+app.get('/get-top-albums', (req, res) => {
+  console.log('call me get top albums')
+  const sql = `
+    select * from album b
+    join author a on b.authorid = a.authorid
+    limit 5
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while getting top albums')
+      return res.json({Status: "Error", Error: err})
+    }
+    return res.json(result)
+  })
+})
+
+app.get('/get-listsongs-by-albumid', (req, res) => {
+  console.log('call me get list songs by album id')
+  const albumid = req.query.albumid
+  const sql = `
+    select * from song s
+    join author a on s.authorid = a.authorid
+    where albumid = ${albumid}
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while getting list songs by album id')
+      return res.json({Status: "Error", Error: err})
+    }
+    return res.json(result)
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
