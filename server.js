@@ -55,7 +55,6 @@ app.get('/get-all-songs', (req, res) => {
   const sql = `
     select * from song s
     join author a on s.authorid = a.authorid
-    limit 3
   `
   db.query(sql, (err, result) => {
     if(err) {
