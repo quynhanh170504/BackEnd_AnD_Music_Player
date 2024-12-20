@@ -155,6 +155,25 @@ app.get('/get-listsongs-by-albumid', (req, res) => {
   })
 })
 
+//Lấy ra các bài hát của playlist
+app.get('/get-listsongs-by-playlistid', (req, res) => {
+  console.log('call me get list songs by playlist id')
+  const playlistid = req.query.playlistid;
+  const sql = `
+    select * from song s 
+    join playlist_song ps on s.songid = ps.songid 
+    where ps.playlistid = ${playlistid}
+  `
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log('Error while getting list songs by album id')
+      return res.json({ Status: "Error", Error: err })
+    }
+    return res.json(result)
+
+  })
+})
+
 app.get('/get-playlist-by-userid', (req, res) => {
   const userid = req.query.userid;
   const sql = `
