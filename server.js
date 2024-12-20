@@ -98,6 +98,39 @@ app.get('/get-listsongs-by-albumid', (req, res) => {
   })
 })
 
+app.get('/get-playlist-by-userid', (req, res) => {
+  const {userid} = req.query
+  const sql = `
+    select * from playlist 
+    where userid = ${userid}
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while add song to playlist')
+      return res.json({Status: 'Error', Error: err})
+    }
+    return res.json({Status: 'Success', Result: result})
+  })
+}) 
+
+app.post('/add-song-to-playlist', (req, res) => {
+  console.log('call me add song to playlist')
+  const sql = `
+    insert into playlist_song (playlistid, songid) values (?)
+  `
+  const values = [
+    req.body.playlistid,
+    req.body.songid
+  ]
+  db.query(sql, [values], (err, result) => {
+    if(err) {
+      console.log('Error while add song to playlist')
+      return res.json({Status: 'Error', Error: err})
+    }
+    return res.json({Status: 'Success'})
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
