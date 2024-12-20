@@ -189,6 +189,38 @@ app.post('/add-song-to-playlist', (req, res) => {
   })
 })
 
+//Lấy toàn bộ genres
+app.get('/get-all-genres', (req, res) => {
+  console.log('Get all genre clicked');
+  const sql = 'select * from genre'
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log('get error when get genres');
+      return res.json({ Status: 'Error', Error: err });
+    }
+    return res.json(result);
+  })
+})
+
+//Lấy các bài hát thuộc 1 genre
+app.get('/get-songs-by-genreid', (req, res) => {
+  console.log('Get songs by genreid');
+  const genreid = req.query.genreid;
+  const sql = `select * 
+               from song 
+               where genreid = ${genreid}
+  `;
+
+  db.query(sql, (err, result) => {
+    if(err){
+      console.log('Get error while get songs by genreid');
+      return res.json({Status: 'Error', Error: err})
+    }
+    return res.json(result);
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
