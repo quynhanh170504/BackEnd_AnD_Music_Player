@@ -70,6 +70,26 @@ app.get('/get-all-songs', (req, res) => {
   })
 })
 
+//Lấy ra toàn bộ bài hát và kèm tác giả và thể loại
+app.get('/get-all-songs-with-author-and-genre', (req, res) => {
+  console.log('call me get all songs with author and genre')
+  const sql = `
+    SELECT * 
+    FROM song s 
+    JOIN genre g 
+    ON g.genreid = s.genreid
+    JOIN author a
+    ON a.authorid = s.authorid
+  `
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log('Error while getting all songs with author and genre')
+      return res.json({ Status: "Error", Error: err })
+    }
+    return res.json(result)
+  })
+})
+
 //Đăng ký tài khoản mới
 app.post('/register', (req, res) => {
   console.log('call me register')
