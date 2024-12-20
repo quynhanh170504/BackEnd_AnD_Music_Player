@@ -26,6 +26,7 @@ const db = mysql.createConnection({
 
 // static route to serve files from 'music' folder
 app.use("/music", express.static(path.join(__dirname, "music")));
+app.use("/image", express.static(path.join(__dirname, "image")));
 
 app.get('/get-all-author', (req, res) => {
   console.log('call me get all author')
