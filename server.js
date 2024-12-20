@@ -5,7 +5,7 @@ import path from 'path'
 import cors from 'cors'
 import bcrypt from 'bcrypt'
 
-import {fileURLToPath} from 'url'
+import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,12 +34,12 @@ app.get('/get-all-author', (req, res) => {
     select * from author
   `
   db.query(sql, (err, result) => {
-    if(err) return res.json({Status: 'Error', Error: err})
+    if (err) return res.json({ Status: 'Error', Error: err })
     return res.json(result)
   })
 })
 
-app.get('/get-songs-for-quickpick', (req,res) => {
+app.get('/get-songs-for-quickpick', (req, res) => {
   console.log('call me get all songs')
   const sql = `
     select * from song s
@@ -47,9 +47,9 @@ app.get('/get-songs-for-quickpick', (req,res) => {
     limit 12
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while getting songs for quickpick')
-      return res.json({Status: "Error", Error: err})
+      return res.json({ Status: "Error", Error: err })
     }
     return res.json(result)
   })
@@ -62,9 +62,9 @@ app.get('/get-all-songs', (req, res) => {
     join author a on s.authorid = a.authorid
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while getting all songs')
-      return res.json({Status: "Error", Error: err})
+      return res.json({ Status: "Error", Error: err })
     }
     return res.json(result)
   })
@@ -75,14 +75,14 @@ app.post('/register', (req, res) => {
   console.log('call me register')
   const sql_check_if_exist = 'select * from user where useremail = ? or userphone = ?'
   db.query(sql_check_if_exist, [req.body.email, req.body.phone], (err, checkResult) => {
-    if(err) return res.json({Status: 'Error', Error: err})
-    if(checkResult.length > 0) {
-      return res.json({Status: 'Error', Error: 'Email hoặc số điện thoại đã tồn tại'})
+    if (err) return res.json({ Status: 'Error', Error: err })
+    if (checkResult.length > 0) {
+      return res.json({ Status: 'Error', Error: 'Email hoặc số điện thoại đã tồn tại' })
     }
     else {
       const sql = 'insert into user(username, userphone, userpass, useremail) values (?)'
       bcrypt.hash(req.body.pass.toString(), salt, (err, hash) => {
-        if (err) return res.json({Status: 'Error', Error: 'error for hashing password' })
+        if (err) return res.json({ Status: 'Error', Error: 'error for hashing password' })
         const values = [
           req.body.username,
           req.body.phone,
@@ -96,7 +96,7 @@ app.post('/register', (req, res) => {
       })
     }
   })
-  
+
 })
 
 //Xử lý đăng nhập
@@ -109,7 +109,7 @@ app.post('/login', (req, res) => {
         if (err) return res.json({ Status: 'Error', Error: 'You enter the wrong password' })
         if (response) {
           console.log(data[0].userid)
-          return res.json({ Status: 'Success', userid: data[0].userid})
+          return res.json({ Status: 'Success', userid: data[0].userid })
         }
         else {
           return res.json({ Status: 'Error', Error: 'Wrong password' })
@@ -129,9 +129,9 @@ app.get('/get-top-albums', (req, res) => {
     limit 5
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while getting top albums')
-      return res.json({Status: "Error", Error: err})
+      return res.json({ Status: "Error", Error: err })
     }
     return res.json(result)
   })
@@ -146,9 +146,9 @@ app.get('/get-listsongs-by-albumid', (req, res) => {
     where albumid = ${albumid}
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while getting list songs by album id')
-      return res.json({Status: "Error", Error: err})
+      return res.json({ Status: "Error", Error: err })
     }
     return res.json(result)
 
@@ -156,19 +156,20 @@ app.get('/get-listsongs-by-albumid', (req, res) => {
 })
 
 app.get('/get-playlist-by-userid', (req, res) => {
-  const {userid} = req.query
+  const userid = req.query.userid;
   const sql = `
-    select * from playlist 
-    where userid = ${userid}
+    SELECT *, count(pls.songid) as numsongs FROM playlist pl
+    join playlist_song pls on pl.playlistid = pls.playlistid
+    WHERE userid = ${userid}
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while add song to playlist')
-      return res.json({Status: 'Error', Error: err})
+      return res.json({ Status: 'Error', Error: err })
     }
-    return res.json({Status: 'Success', Result: result})
+    return res.json({ Status: 'Success', Result: result })
   })
-}) 
+})
 
 app.post('/add-song-to-playlist', (req, res) => {
   console.log('call me add song to playlist')
@@ -180,11 +181,11 @@ app.post('/add-song-to-playlist', (req, res) => {
     req.body.songid
   ]
   db.query(sql, [values], (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while add song to playlist')
-      return res.json({Status: 'Error', Error: err})
+      return res.json({ Status: 'Error', Error: err })
     }
-    return res.json({Status: 'Success'})
+    return res.json({ Status: 'Success' })
   })
 })
 
