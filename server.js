@@ -107,7 +107,7 @@ app.post('/login', (req, res) => {
       bcrypt.compare(req.body.pass.toString(), data[0].userpass, (err, response) => {
         if (err) return res.json({ Status: 'Error', Error: 'You enter the wrong password' })
         if (response) {
-          return res.json({ Status: 'Success'})
+          return res.json({ Status: 'Success', userid: data[0].userid})
         }
         else {
           return res.json({ Status: 'Error', Error: 'Wrong password' })
