@@ -334,6 +334,26 @@ app.get('/get-songs-by-genreid', (req, res) => {
   })
 })
 
+app.get('/get-song-by-authorid', (req, res) => {
+  console.log('Get songs by authorid');
+  const authorid = req.query.authorid;
+  const sql = `
+    select s.*, a.authoravatar, a.authorname
+    from song s
+    join author a on s.authorid = a.authorid
+    where s.authorid = ${authorid}
+  `;
+
+  db.query(sql, (err, result) => {
+    if(err){
+      console.log('Get error while get songs by authorid');
+      return res.json({Status: 'Error', Error: err})
+    }
+    return res.json({Status: 'Success', Result: result});
+    // return res.json(result);
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
