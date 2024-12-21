@@ -230,6 +230,22 @@ app.post('/add-new-playlist', (req,res) => {
   })
 })
 
+//Tạo playlist favorite
+app.post('/add-favourite-playlist', (req,res) => {
+  console.log('call me add favourite playlist');
+  const sql = `
+    insert into playlist (playlistname,playlistimg,userid) values (Favorite,/image/album/favouriteicon.png,?)
+  `
+  const values = [req.body.userid];
+  db.query(sql, [values], (err, result) => {
+    if (err) {
+      console.log('Error while create favourite playlist')
+      return res.json({ Status: 'Error', Error: err })
+    }
+    return res.json({ Status: 'Success' })
+  })
+})
+
 app.post('/add-song-to-playlist', (req, res) => {
   console.log('call me add song to playlist')
   const sql = `
