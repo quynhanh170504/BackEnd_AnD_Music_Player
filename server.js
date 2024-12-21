@@ -264,6 +264,44 @@ app.post('/add-song-to-playlist', (req, res) => {
   })
 })
 
+app.post('/add-song-to-favourite-playlist', (req, res) => {
+  console.log('call me add song to playlist')
+  const sql_get_favourite_playlist_id = `
+    select playlistid from playlist where playlistname = 'Favourite' and userid = ${req.body.userid}
+  `
+  db.query(sql_get_favourite_playlist_id, (err, result) => {
+    if (err) {
+      console.log('Error while get favourite playlist id')
+      return res.json({ Status: 'Error', Error: err })
+    }
+    console.log('check result after getting playlistid: ', result[0].playlistid)
+    const sql_check_if_exist = `
+      select * from playlist_song where playlistid = ${result[0].playlistid} and songid = ${req.body.songid}
+    `
+    db.query(sql_check_if_exist, (err, checkResult) => {
+      if (err) {
+        console.log('Error while check if song exist in favourite playlist')
+        return res.json({ Status: 'Error', Error: err })
+      }
+      if (checkResult.length > 0) {
+        return res.json({ Status: 'Error', Error: 'Song already exist in your favourite playlist' })
+      }
+      const sql = `insert into playlist_song (playlistid, songid) values (?)`
+      const values = [
+        result[0].playlistid,
+        req.body.songid
+      ]
+      db.query(sql, [values], (err, insert_result) => {
+        if (err) {
+          console.log('Error while add song to favourite playlist')
+          return res.json({ Status: 'Error', Error: err })
+        }
+        return res.json({ Status: 'Success' })
+      })
+    })
+  })
+})
+
 //Lấy toàn bộ genres
 app.get('/get-all-genres', (req, res) => {
   console.log('Get all genre clicked');
