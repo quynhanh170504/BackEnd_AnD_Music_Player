@@ -197,9 +197,12 @@ app.get('/get-listsongs-by-playlistid', (req, res) => {
 app.get('/get-playlist-by-userid', (req, res) => {
   const userid = req.query.userid;
   const sql = `
-    SELECT *, count(pls.songid) as numsongs FROM playlist pl
-    join playlist_song pls on pl.playlistid = pls.playlistid
-    WHERE userid = ${userid}
+    SELECT pl.*, COUNT(pls.songid) AS numsongs 
+    FROM playlist pl
+    LEFT JOIN playlist_song pls 
+    ON pl.playlistid = pls.playlistid
+    WHERE pl.userid = ${userid}
+    GROUP BY pl.playlistid;
   `
   db.query(sql, (err, result) => {
     if (err) {
@@ -207,6 +210,22 @@ app.get('/get-playlist-by-userid', (req, res) => {
       return res.json({ Status: 'Error', Error: err })
     }
     return res.json({ Status: 'Success', Result: result })
+  })
+})
+
+//Tạo playlist mới
+app.post('/add-new-playlist', (req,res) => {
+  console.log('call me add new playlist');
+  const sql = `
+    insert into playlist (playlistname,userid) values (?)
+  `
+  const values = [req.body.playlistname, req.body.userid];
+  db.query(sql, [values], (err, result) => {
+    if (err) {
+      console.log('Error while create new playlist')
+      return res.json({ Status: 'Error', Error: err })
+    }
+    return res.json({ Status: 'Success' })
   })
 })
 
