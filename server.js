@@ -182,6 +182,7 @@ app.get('/get-listsongs-by-playlistid', (req, res) => {
   const sql = `
     select * from song s 
     join playlist_song ps on s.songid = ps.songid 
+    join author a on s.authorid = a.authorid
     where ps.playlistid = ${playlistid}
   `
   db.query(sql, (err, result) => {
