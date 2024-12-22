@@ -215,20 +215,24 @@ app.get('/get-playlist-by-userid', (req, res) => {
 })
 
 //Tạo playlist mới
-app.post('/add-new-playlist', (req,res) => {
+app.post('/add-new-playlist', (req, res) => {
   console.log('call me add new playlist');
   const sql = `
-    insert into playlist (playlistname,userid) values (?)
-  `
+    INSERT INTO playlist (playlistname, userid) VALUES (?, ?)
+  `;
   const values = [req.body.playlistname, req.body.userid];
-  db.query(sql, [values], (err, result) => {
+
+  db.query(sql, values, (err, result) => {
     if (err) {
-      console.log('Error while create new playlist')
-      return res.json({ Status: 'Error', Error: err })
+      console.error('Error while creating new playlist:', err);
+      return res.json({ Status: 'Error', Error: err });
     }
-    return res.json({ Status: 'Success' })
-  })
-})
+
+    // If successful, send back the playlistid (result.insertId)
+    return res.json({ Status: 'Success', playlistid: result.insertId });
+  });
+});
+
 
 //Tạo playlist favorite
 app.post('/add-favourite-playlist', (req,res) => {
@@ -246,26 +250,41 @@ app.post('/add-favourite-playlist', (req,res) => {
   })
 })
 
+
+//Thêm bài hát vào danh sách phát
 app.post('/add-song-to-playlist', (req, res) => {
   console.log('call me add song to playlist')
+  const sql_check_if_exist_song = `
+  select * 
+  from playlist_song 
+  where playlistid = ? and songid = ?`
   const sql = `
-    insert into playlist_song (playlistid, songid) values (?)
+    insert into playlist_song (playlistid, songid) values (?,?)
   `
   const values = [
     req.body.playlistid,
     req.body.songid
   ]
-  db.query(sql, [values], (err, result) => {
+  db.query(sql_check_if_exist_song,values, (err,checkResult) => {
     if (err) {
-      console.log('Error while add song to playlist')
+      console.log('Error while check if song exist in playlist')
       return res.json({ Status: 'Error', Error: err })
     }
-    return res.json({ Status: 'Success' })
+    if (checkResult.length > 0) {
+      return res.json({ Status: 'Error', Error: 'Song already exist in your playlist' })
+    }
+    db.query(sql, values, (err, result) => {
+      if (err) {
+        console.log('Error while add song to playlist', err)
+        return res.json({ Status: 'Error', Error: err })
+      }
+      return res.json({ Status: 'Success' })
+    })
   })
 })
 
 app.post('/add-song-to-favourite-playlist', (req, res) => {
-  console.log('call me add song to playlist')
+  console.log('call me add song to favourite playlist')
   const sql_get_favourite_playlist_id = `
     select playlistid from playlist where playlistname = 'Favourite' and userid = ${req.body.userid}
   `
