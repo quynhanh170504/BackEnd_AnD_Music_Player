@@ -404,6 +404,32 @@ app.post('/follow-author', (req, res) => {
   
 })
 
+app.post('/unfollow-author', (req, res) => {
+  console.log('call me unfollow author')
+  const sql_check_if_exist = `
+    select * from user_author where authorid = ${req.body.authorid} and userid = ${req.body.userid}
+  `
+  db.query(sql_check_if_exist, (err, checkResult) => {
+    if (err) {
+      console.log('Error while check if author is followed')
+      return res.json({ Status: 'Error', Error: err })
+    }
+    if (checkResult.length === 0) {
+      return res.json({ Status: 'NotExisted', Error: 'Author is not followed'})
+    }
+    const sql = `
+      delete from user_author where authorid = ${req.body.authorid} and userid = ${req.body.userid}
+    `
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.log('Error while unfollow author')
+        return res.json({ Status: 'Error', Error: err })
+      }
+      return res.json({ Status: 'Success' })
+    })
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
