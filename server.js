@@ -354,6 +354,56 @@ app.get('/get-song-by-authorid', (req, res) => {
   })
 })
 
+app.get('/check-is-followed', (req, res) => {
+  console.log('call me check is followed')
+  const sql_check_if_exist = `
+    select * from user_author where authorid = ${req.query.authorid} and userid = ${req.query.userid}
+  `
+  db.query(sql_check_if_exist, (err, checkResult) => {
+    if (err) {
+      console.log('Error while check if author is followed')
+      return res.json({ Status: 'Error', Error: err })
+    }
+    if (checkResult.length > 0) {
+      return res.json({ Status: 'Existed'})
+    }
+    else {
+      return res.json({ Status: 'NotExisted' })
+    }
+  })
+})
+
+app.post('/follow-author', (req, res) => {
+  console.log('call me follow author')
+  const sql_check_if_exist = `
+    select * from user_author where authorid = ${req.body.authorid} and userid = ${req.body.userid}
+  `
+  db.query(sql_check_if_exist, (err, checkResult) => {
+    if (err) {
+      console.log('Error while check if author is followed')
+      return res.json({ Status: 'Error', Error: err })
+    }
+    if (checkResult.length > 0) {
+      return res.json({ Status: 'Existed', Error: 'Author is already followed'})
+    }
+    const sql = `
+      insert into user_author (authorid, userid) values (?)
+    `
+    const values = [
+      req.body.authorid,
+      req.body.userid
+    ]
+    db.query(sql, [values], (err, result) => {
+      if (err) {
+        console.log('Error while follow author')
+        return res.json({ Status: 'Error', Error: err })
+      }
+      return res.json({ Status: 'Success' })
+    })
+  })
+  
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
