@@ -454,6 +454,21 @@ app.post('/unfollow-author', (req, res) => {
   })
 })
 
+app.get('/get-all-followed-author-by-userid', (req, res) => {
+  const sql = `
+    select * from author a
+    join user_author ua on a.authorid = ua.authorid
+    where userid = ${req.query.userid}
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('error in get followed author')
+      return res.json({Status: 'Error', Error: err})
+    }
+    return res.json({Status: 'Success', Result: result})
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
