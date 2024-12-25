@@ -129,7 +129,12 @@ app.post('/login', (req, res) => {
         if (err) return res.json({ Status: 'Error', Error: 'You enter the wrong password' })
         if (response) {
           console.log(data[0].userid)
-          return res.json({ Status: 'Success', userid: data[0].userid })
+          return res.json({
+            Status: 'Success',
+            userid: data[0].userid,
+            username: data[0].username,
+            useravatar: data[0].useravatar
+          })
         }
         else {
           return res.json({ Status: 'Error', Error: 'Wrong password' })
@@ -235,7 +240,7 @@ app.post('/add-new-playlist', (req, res) => {
 
 
 //Tạo playlist favorite
-app.post('/add-favourite-playlist', (req,res) => {
+app.post('/add-favourite-playlist', (req, res) => {
   console.log('call me add favourite playlist');
   const sql = `
     insert into playlist (playlistname,playlistimg,userid) values (Favorite,/image/album/favouriteicon.png,?)
@@ -265,7 +270,7 @@ app.post('/add-song-to-playlist', (req, res) => {
     req.body.playlistid,
     req.body.songid
   ]
-  db.query(sql_check_if_exist_song,values, (err,checkResult) => {
+  db.query(sql_check_if_exist_song, values, (err, checkResult) => {
     if (err) {
       console.log('Error while check if song exist in playlist')
       return res.json({ Status: 'Error', Error: err })
@@ -345,9 +350,9 @@ app.get('/get-songs-by-genreid', (req, res) => {
   `;
 
   db.query(sql, (err, result) => {
-    if(err){
+    if (err) {
       console.log('Get error while get songs by genreid');
-      return res.json({Status: 'Error', Error: err})
+      return res.json({ Status: 'Error', Error: err })
     }
     return res.json(result);
   })
@@ -364,11 +369,11 @@ app.get('/get-song-by-authorid', (req, res) => {
   `;
 
   db.query(sql, (err, result) => {
-    if(err){
+    if (err) {
       console.log('Get error while get songs by authorid');
-      return res.json({Status: 'Error', Error: err})
+      return res.json({ Status: 'Error', Error: err })
     }
-    return res.json({Status: 'Success', Result: result});
+    return res.json({ Status: 'Success', Result: result });
     // return res.json(result);
   })
 })
@@ -384,7 +389,7 @@ app.get('/check-is-followed', (req, res) => {
       return res.json({ Status: 'Error', Error: err })
     }
     if (checkResult.length > 0) {
-      return res.json({ Status: 'Existed'})
+      return res.json({ Status: 'Existed' })
     }
     else {
       return res.json({ Status: 'NotExisted' })
@@ -403,7 +408,7 @@ app.post('/follow-author', (req, res) => {
       return res.json({ Status: 'Error', Error: err })
     }
     if (checkResult.length > 0) {
-      return res.json({ Status: 'Existed', Error: 'Author is already followed'})
+      return res.json({ Status: 'Existed', Error: 'Author is already followed' })
     }
     const sql = `
       insert into user_author (authorid, userid) values (?)
@@ -420,7 +425,7 @@ app.post('/follow-author', (req, res) => {
       return res.json({ Status: 'Success' })
     })
   })
-  
+
 })
 
 app.post('/unfollow-author', (req, res) => {
@@ -434,7 +439,7 @@ app.post('/unfollow-author', (req, res) => {
       return res.json({ Status: 'Error', Error: err })
     }
     if (checkResult.length === 0) {
-      return res.json({ Status: 'NotExisted', Error: 'Author is not followed'})
+      return res.json({ Status: 'NotExisted', Error: 'Author is not followed' })
     }
     const sql = `
       delete from user_author where authorid = ${req.body.authorid} and userid = ${req.body.userid}
