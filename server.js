@@ -544,6 +544,60 @@ app.put('/update-useravatar', (req, res) => {
   })
 })
 
+//Delete a playlist
+app.delete('/delete-playlist-by-id', (req, res) => {
+  console.log('call me delete playlist by its id');
+  const playlistid = req.query.playlistid;
+
+  const sql_del_pl_song = `
+    DELETE FROM playlist_song
+    WHERE playlistid = ?
+  `;
+  db.query(sql_del_pl_song, [playlistid], (err, result) => {
+    if (err) {
+      return res.json({ Error: "Can't delete playlist_song" });
+    }
+
+    const sql_del_pl = `
+      DELETE FROM playlist
+      WHERE playlistid = ?
+    `;
+    db.query(sql_del_pl, [playlistid], (err, result) => {
+      if (err) {
+        return res.json({ Error: "Can't delete playlist" });
+      }
+      return res.json({ Status: 'Success delete playlist and playlist_song' });
+    });
+  });
+});
+
+//Update playlist name
+app.put('/update-playlistname', (req, res) => {
+  console.log('call me update playlist name');
+  const {playlistid, playlistname} = req.body;
+  console.log(req.body);
+  const sql = `
+    UPDATE playlist
+    SET
+      playlistname = ?
+    WHERE playlistid = ?
+  `;
+  db.query(sql, [playlistname, playlistid], (err, result) => {
+    console.log(req.body);
+
+    if (err) {
+      console.error('Error updating user info:', err);
+      return res.status(500).json({ error: 'Server error while updating playlist info' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Playlist not found' });
+    }
+
+    return res.status(200).json({ Status: 'Playlist updated successfully' });
+  })
+})
+
 app.get('/get-detail-song-info', (req, res) => {
   console.log('call me get detail song info')
   const sql = `
