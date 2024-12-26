@@ -4,6 +4,7 @@ import mysql from 'mysql'
 import path from 'path'
 import cors from 'cors'
 import bcrypt from 'bcrypt'
+import multer from 'multer'
 
 import { fileURLToPath } from 'url'
 
@@ -461,11 +462,85 @@ app.get('/get-all-followed-author-by-userid', (req, res) => {
     where userid = ${req.query.userid}
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('error in get followed author')
-      return res.json({Status: 'Error', Error: err})
+      return res.json({ Status: 'Error', Error: err })
     }
-    return res.json({Status: 'Success', Result: result})
+    return res.json({ Status: 'Success', Result: result })
+  })
+})
+
+//Dùng multer cho avatar user
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = `${Date.now()}-${file.originalname}`; // Đặt tên tệp duy nhất
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({
+  storage: storage
+});
+
+app.post('/upload-avatar', upload.single('avatar'), (req, res) => {
+  console.log('call me upload-avatar');
+  console.log(req.file.filename);
+  if (!req.file) {
+    return res.status(400).send('No file uploaded!');
+  }
+  const fileUrl = `/uploads/${req.file.filename}`;
+  res.status(200).json({ Status: 'success', useravatar: fileUrl });
+});
+
+app.use('/uploads', express.static('uploads'));
+
+//update username
+app.put('/update-username', (req, res) => {
+  const { userid, username } = req.body;
+  const sql = `
+    UPDATE user
+    SET
+      username = ?
+    WHERE userid = ?
+  `;
+  db.query(sql, [username, userid], (err, result) => {
+    if (err) {
+      console.error('Error updating user info:', err);
+      return res.status(500).json({ error: 'Server error while updating user info' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({ Status: 'User updated successfully' });
+  })
+})
+
+//update avatar
+app.put('/update-useravatar', (req, res) => {
+  console.log('call me update useravatar')
+  const { userid, useravatar } = req.body;
+  const sql = `
+      UPDATE user
+      SET
+        useravatar = ?
+      WHERE userid = ?
+    `;
+  db.query(sql, [useravatar, userid], (err, result) => {
+    if (err) {
+      console.error('Error updating user info:', err);
+      return res.status(500).json({ error: 'Server error while updating user info' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({ Status: 'User updated successfully' });
   })
 })
 
