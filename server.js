@@ -598,6 +598,40 @@ app.put('/update-playlistname', (req, res) => {
   })
 })
 
+app.get('/get-detail-song-info', (req, res) => {
+  console.log('call me get detail song info')
+  const sql = `
+    select songname, albumname, authorname, genrename
+    from song s 
+    join album al on s.albumid = al.albumid
+    join author au on au.authorid = s.authorid
+    join genre g on s.genreid = g.genreid
+    WHERE s.songid = ${req.query.songid}
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while getting detail song info')
+      return res.json({Status: 'Error', Error: 'Error while getting detail song info'})
+    }
+    return res.json({Status: 'Success', Result: result})
+  })
+})
+
+app.get('/count-favourite-by-songid', (req, res) => {
+  const sql = `
+    select count(*) as soluotthich
+    from playlist_song 
+    where songid = ${req.query.songid} and playlistid in (select playlistid from playlist where playlistname = 'Favourite')
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while counting favourite')
+      return res.json({Status: 'Error', Error: err})
+    }
+    return res.json({Status: 'Success', Result: result})
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
