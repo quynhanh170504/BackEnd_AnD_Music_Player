@@ -112,7 +112,7 @@ app.post('/register', (req, res) => {
         ]
         db.query(sql, [values], (err, result) => {
           if (err) return res.json({ Status: 'Error', Error: 'Inseting data Error in server' })
-          return res.json({ Status: 'Success' })
+          return res.json({ Status: 'Success', userid: result.insertId })
         })
       })
     }
@@ -244,10 +244,13 @@ app.post('/add-new-playlist', (req, res) => {
 app.post('/add-favourite-playlist', (req, res) => {
   console.log('call me add favourite playlist');
   const sql = `
-    insert into playlist (playlistname,playlistimg,userid) values (Favorite,/image/album/favouriteicon.png,?)
-  `
-  const values = [req.body.userid];
-  db.query(sql, [values], (err, result) => {
+  INSERT INTO playlist (playlistname, playlistimg, userid) 
+  VALUES ('Favourite', '/image/album/favouriteicon.png', ?)
+  `;
+
+  const userid = req.body.userid;
+  console.log(userid);
+  db.query(sql, [userid], (err, result) => {
     if (err) {
       console.log('Error while create favourite playlist')
       return res.json({ Status: 'Error', Error: err })
@@ -574,7 +577,7 @@ app.delete('/delete-playlist-by-id', (req, res) => {
 //Update playlist name
 app.put('/update-playlistname', (req, res) => {
   console.log('call me update playlist name');
-  const {playlistid, playlistname} = req.body;
+  const { playlistid, playlistname } = req.body;
   console.log(req.body);
   const sql = `
     UPDATE playlist
@@ -609,11 +612,11 @@ app.get('/get-detail-song-info', (req, res) => {
     WHERE s.songid = ${req.query.songid}
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while getting detail song info')
-      return res.json({Status: 'Error', Error: 'Error while getting detail song info'})
+      return res.json({ Status: 'Error', Error: 'Error while getting detail song info' })
     }
-    return res.json({Status: 'Success', Result: result})
+    return res.json({ Status: 'Success', Result: result })
   })
 })
 
@@ -624,11 +627,11 @@ app.get('/count-favourite-by-songid', (req, res) => {
     where songid = ${req.query.songid} and playlistid in (select playlistid from playlist where playlistname = 'Favourite')
   `
   db.query(sql, (err, result) => {
-    if(err) {
+    if (err) {
       console.log('Error while counting favourite')
-      return res.json({Status: 'Error', Error: err})
+      return res.json({ Status: 'Error', Error: err })
     }
-    return res.json({Status: 'Success', Result: result})
+    return res.json({ Status: 'Success', Result: result })
   })
 })
 
