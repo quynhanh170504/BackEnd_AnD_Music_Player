@@ -606,7 +606,7 @@ app.get('/get-detail-song-info', (req, res) => {
   const sql = `
     select songname, albumname, authorname, genrename
     from song s 
-    join album al on s.albumid = al.albumid
+    left join album al on s.albumid = al.albumid
     join author au on au.authorid = s.authorid
     join genre g on s.genreid = g.genreid
     WHERE s.songid = ${req.query.songid}
