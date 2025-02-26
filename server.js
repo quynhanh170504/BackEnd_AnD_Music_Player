@@ -382,6 +382,20 @@ app.get('/get-song-by-authorid', (req, res) => {
   })
 })
 
+app.get('/get-song-by-songid', (req, res) => {
+  const sql = `
+    select * from song
+    where songid = ${req.query.songid}
+  `
+  db.query(sql, (err, result) => {
+    if(err) {
+      console.log('Error while getting song by id: ', err)
+      return  res.json({Status: 'Error', Error: err})
+    }
+    return res.json({Status: 'Success', Result: result})
+  })
+})
+
 app.get('/check-is-followed', (req, res) => {
   console.log('call me check is followed')
   const sql_check_if_exist = `
