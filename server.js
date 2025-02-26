@@ -588,6 +588,28 @@ app.delete('/delete-playlist-by-id', (req, res) => {
   });
 });
 
+//Delete a song from playlist
+app.post('/delete-song-from-playlist', (req,res) => {
+  console.log('call me delete song from playlist');
+  const sql = `
+    DELETE FROM playlist_song
+    WHERE playlistid = ${req.body.playlistid}
+    AND songid = ${req.body.songid}
+  `
+  db.query(sql,(err,result) => {
+    if (err) {
+      console.error('Error delete song from playlist:', err);
+      return res.status(500).json({ error: 'Server error while updating playlist info' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Song not found' });
+    }
+
+    return res.status(200).json({ Status: 'Song got deleted successfully' });
+  })
+})
+
 //Update playlist name
 app.put('/update-playlistname', (req, res) => {
   console.log('call me update playlist name');
@@ -600,8 +622,6 @@ app.put('/update-playlistname', (req, res) => {
     WHERE playlistid = ?
   `;
   db.query(sql, [playlistname, playlistid], (err, result) => {
-    console.log(req.body);
-
     if (err) {
       console.error('Error updating user info:', err);
       return res.status(500).json({ error: 'Server error while updating playlist info' });
